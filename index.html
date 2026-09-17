@@ -3,113 +3,137 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Математическая раскраска — тест</title>
+<title>Математическая раскраска — Лисичка</title>
 <style>
-*{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif}
 #game{position:relative;width:100vw;height:100vh;min-height:420px;background:linear-gradient(#fffaf0,#f3ead9);overflow:hidden}
-header{position:absolute;top:2%;left:0;right:0;text-align:center;z-index:10}
-h1{margin:0;color:#493d38;font-size:clamp(20px,3vw,38px)}
-header div{margin-top:5px;color:#75645b;font-size:clamp(13px,1.5vw,18px)}
-.board{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);width:min(60vw,620px);height:min(68vh,600px)}
-svg{width:100%;height:100%}
-.zone{fill:white;stroke:#292929;stroke-width:5;stroke-linejoin:round;cursor:pointer;transition:fill .2s}
-.zone.wrong{animation:shake .28s}
+header{position:absolute;top:1.5%;left:0;right:0;text-align:center;z-index:20}
+h1{margin:0;color:#493d38;font-size:clamp(20px,3vw,36px)}
+header div{margin-top:4px;color:#75645b;font-size:clamp(12px,1.5vw,17px)}
+.board{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:min(68vw,700px);aspect-ratio:1/1}
+#fox{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;pointer-events:none}
+svg{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+.paint{fill:transparent;cursor:pointer;transition:fill .2s,opacity .2s}
+.paint.done{opacity:.82}
+.paint.wrong{animation:shake .28s}
 @keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
-.detail{fill:none;stroke:#292929;stroke-width:5;stroke-linecap:round;pointer-events:none}
-.math{font-size:26px;font-weight:800;fill:#252525;text-anchor:middle;pointer-events:none}
-.palette{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);display:flex;gap:10px;padding:10px 14px;background:#ffffffdd;border-radius:22px;box-shadow:0 4px 18px #0002;z-index:20}
-.swatch{width:clamp(46px,6vw,68px);height:clamp(46px,6vw,68px);border:4px solid white;border-radius:18px;box-shadow:0 2px 8px #0003;font-size:clamp(20px,2.5vw,29px);font-weight:900;cursor:pointer}
+.palette{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);display:flex;gap:12px;padding:10px 15px;background:#ffffffea;border-radius:22px;box-shadow:0 4px 18px #0002;z-index:30}
+.swatch{width:clamp(52px,7vw,76px);height:clamp(52px,7vw,76px);border:4px solid white;border-radius:18px;box-shadow:0 2px 8px #0003;font-size:clamp(21px,2.7vw,31px);font-weight:900;cursor:pointer}
 .swatch.selected{outline:4px solid #333;transform:translateY(-6px)}
-#msg{position:absolute;left:50%;top:13%;transform:translateX(-50%);padding:8px 16px;background:white;border-radius:18px;font-weight:800;opacity:0;z-index:30;transition:.2s}
+#msg{position:absolute;left:50%;top:12%;transform:translateX(-50%);padding:8px 16px;background:white;border-radius:18px;font-weight:800;opacity:0;z-index:40;transition:.2s;white-space:nowrap}
 #msg.show{opacity:1}
-#next{position:absolute;right:4%;bottom:5%;z-index:40;display:none;border:0;border-radius:20px;padding:14px 25px;background:white;font-size:21px;font-weight:900;box-shadow:0 5px 18px #0003}
+#next{position:absolute;right:4%;bottom:5%;z-index:45;display:none;border:0;border-radius:20px;padding:14px 25px;background:white;font-size:21px;font-weight:900;box-shadow:0 5px 18px #0003;cursor:pointer}
 #next.show{display:block;animation:pop .4s}
-@keyframes pop{0%{transform:scale(.3)}80%{transform:scale(1.1)}}
-.spark{position:absolute;top:-25px;width:10px;height:17px;border-radius:3px;z-index:35;animation:fall 2.4s linear forwards;pointer-events:none}
+@keyframes pop{0%{transform:scale(.3)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
+.spark{position:absolute;top:-25px;width:10px;height:17px;border-radius:3px;z-index:42;animation:fall 2.4s linear forwards;pointer-events:none}
 @keyframes fall{to{transform:translate(var(--d),110vh) rotate(720deg);opacity:.8}}
-@media(max-width:700px){.board{width:88vw;height:62vh}.palette{gap:6px;padding:8px}.math{font-size:24px}}
+@media(max-width:700px){
+ .board{width:92vw;top:47%}
+ .palette{gap:8px;padding:8px 10px}
+ #next{right:2%;bottom:13%}
+}
 </style>
 </head>
 <body>
 <div id="game">
-<header><h1>Математическая раскраска</h1><div>Реши пример → выбери цвет с ответом → нажми на нужную часть</div></header>
+<header>
+<h1>Математическая раскраска</h1>
+<div>Реши пример → выбери цвет с ответом → нажми на эту часть лисички</div>
+</header>
+
 <div id="msg"></div>
 
 <div class="board">
-<svg viewBox="0 0 600 600">
-<!-- хвост -->
-<path class="zone" data-answer="7" d="M430 365 C545 335 565 430 510 475 C485 495 458 477 478 456 C515 418 493 390 437 405 Z"/>
-<!-- туловище -->
-<ellipse class="zone" data-answer="5" cx="315" cy="405" rx="145" ry="125"/>
-<!-- уши -->
-<path class="zone" data-answer="3" d="M205 205 L190 72 L292 155 Z"/>
-<path class="zone" data-answer="6" d="M330 155 L430 72 L416 215 Z"/>
-<!-- голова -->
-<ellipse class="zone" data-answer="4" cx="310" cy="235" rx="135" ry="120"/>
-<!-- живот -->
-<ellipse class="zone" data-answer="8" cx="310" cy="420" rx="75" ry="88"/>
-
-<path class="detail" d="M265 220 q18 -16 36 0 M334 220 q18 -16 36 0"/>
-<path class="detail" d="M310 245 l-9 8 9 8 9-8z"/>
-<path class="detail" d="M310 261 q-18 20 -36 4 M310 261 q18 20 36 4"/>
-<path class="detail" d="M250 252 l-72 -12 M250 270 l-76 8 M370 252 l72 -12 M370 270 l76 8"/>
-<path class="detail" d="M230 505 q-15 42 30 42 M390 505 q15 42 -30 42"/>
-
-<text class="math" x="230" y="150">1+2</text>
-<text class="math" x="385" y="150">3+3</text>
-<text class="math" x="310" y="315">2+2</text>
-<text class="math" x="310" y="430">4+4</text>
-<text class="math" x="215" y="390">2+3</text>
-<text class="math" x="500" y="405">9−2</text>
+<!-- Цветовые маски. Они лежат ПОД исходной картинкой, поэтому черный контур fox.png остается сверху. -->
+<svg viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid meet">
+  <!-- левое ухо: 2+3 = 5 -->
+  <path class="paint" data-answer="5"
+        d="M126 305 C108 225 108 105 168 26 C230 64 290 125 334 194 C270 193 218 218 184 273 C164 303 146 315 126 305 Z"/>
+  <!-- правое ухо: 4+2 = 6 -->
+  <path class="paint" data-answer="6"
+        d="M493 190 C544 116 613 72 679 48 C716 118 721 220 694 309 C666 330 640 332 613 316 C594 252 552 210 493 190 Z"/>
+  <!-- голова: 1+4 = 5 -->
+  <path class="paint" data-answer="5"
+        d="M187 217 C245 171 330 144 415 155 C509 157 594 197 630 270 C663 340 646 432 582 489 C526 536 420 558 326 542 C236 529 155 484 128 414 C105 355 128 268 187 217 Z"/>
+  <!-- грудка: 3+3 = 6 -->
+  <path class="paint" data-answer="6"
+        d="M255 526 C306 548 375 551 430 529 C461 576 455 646 420 700 C390 748 352 779 323 789 C281 757 251 714 239 664 C228 613 232 562 255 526 Z"/>
+  <!-- туловище: 7-2 = 5 -->
+  <path class="paint" data-answer="5"
+        d="M431 530 C507 546 584 597 637 667 C666 707 681 765 663 824 C642 895 588 941 511 951 C454 958 399 936 376 899 C408 862 433 814 440 762 C447 697 436 612 431 530 Z"/>
+  <!-- хвост: 6+2 = 8 -->
+  <path class="paint" data-answer="8"
+        d="M628 665 C674 553 757 437 918 407 C896 459 895 516 918 570 C947 641 928 744 866 817 C810 884 741 908 656 879 C686 821 689 754 667 709 C657 689 644 674 628 665 Z"/>
 </svg>
+<img id="fox" src="images/fox.png" alt="Лисичка">
 </div>
 
 <div class="palette">
-<button class="swatch" data-a="3" data-c="#f6a6b7" style="background:#f6a6b7">3</button>
-<button class="swatch" data-a="4" data-c="#ffd66e" style="background:#ffd66e">4</button>
-<button class="swatch" data-a="5" data-c="#9fddae" style="background:#9fddae">5</button>
+<button class="swatch" data-a="5" data-c="#f6a6b7" style="background:#f6a6b7">5</button>
 <button class="swatch" data-a="6" data-c="#8fc7ff" style="background:#8fc7ff">6</button>
-<button class="swatch" data-a="7" data-c="#c9a8ef" style="background:#c9a8ef">7</button>
-<button class="swatch" data-a="8" data-c="#ffb36b" style="background:#ffb36b">8</button>
+<button class="swatch" data-a="8" data-c="#ffd66e" style="background:#ffd66e">8</button>
 </div>
+
 <button id="next">ДАЛЬШЕ →</button>
 </div>
 
 <script>
-const zones=[...document.querySelectorAll('.zone')], buttons=[...document.querySelectorAll('.swatch')];
-const msg=document.getElementById('msg'), next=document.getElementById('next'), game=document.getElementById('game');
+const zones=[...document.querySelectorAll('.paint')];
+const buttons=[...document.querySelectorAll('.swatch')];
+const msg=document.getElementById('msg');
+const next=document.getElementById('next');
+const game=document.getElementById('game');
 let selected=null,done=0,finished=false;
 
-buttons.forEach(b=>b.onclick=()=>{
+buttons.forEach(b=>b.addEventListener('click',()=>{
  selected={a:b.dataset.a,c:b.dataset.c};
- buttons.forEach(x=>x.classList.remove('selected')); b.classList.add('selected');
-});
+ buttons.forEach(x=>x.classList.remove('selected'));
+ b.classList.add('selected');
+}));
 
-zones.forEach(z=>z.onclick=()=>{
- if(finished||z.dataset.done==='1')return;
+zones.forEach(z=>z.addEventListener('click',()=>{
+ if(finished || z.dataset.done==='1') return;
  if(!selected){flash('Сначала выбери цвет 🎨');return}
  if(selected.a===z.dataset.answer){
-   z.style.fill=selected.c; z.dataset.done='1'; done++;
-   if(done===zones.length)finish();
- }else{
-   z.classList.remove('wrong'); void z.offsetWidth; z.classList.add('wrong');
+   z.style.fill=selected.c;
+   z.classList.add('done');
+   z.dataset.done='1';
+   done++;
+   if(done===zones.length) finish();
+ } else {
+   z.classList.remove('wrong');
+   void z.offsetWidth;
+   z.classList.add('wrong');
    flash('Попробуй другой цвет 😊');
  }
-});
+}));
 
-function flash(t){msg.textContent=t;msg.classList.add('show');clearTimeout(window.m);window.m=setTimeout(()=>msg.classList.remove('show'),1100)}
+function flash(t){
+ msg.textContent=t;
+ msg.classList.add('show');
+ clearTimeout(window.m);
+ window.m=setTimeout(()=>msg.classList.remove('show'),1100);
+}
+
 function finish(){
  finished=true;
- document.querySelectorAll('.math').forEach(x=>{x.style.transition='opacity .5s';x.style.opacity=0});
  const colors=['#ffd66e','#f6a6b7','#8fc7ff','#9fddae','#c9a8ef','#ffb36b'];
- for(let i=0;i<90;i++){
-   const s=document.createElement('i');s.className='spark';s.style.left=Math.random()*100+'%';
+ for(let i=0;i<100;i++){
+   const s=document.createElement('i');
+   s.className='spark';
+   s.style.left=Math.random()*100+'%';
    s.style.background=colors[Math.floor(Math.random()*colors.length)];
-   s.style.setProperty('--d',(Math.random()*220-110)+'px');
-   s.style.animationDelay=Math.random()*.7+'s';game.appendChild(s);setTimeout(()=>s.remove(),3300);
+   s.style.setProperty('--d',(Math.random()*240-120)+'px');
+   s.style.animationDelay=Math.random()*.7+'s';
+   s.style.animationDuration=(1.8+Math.random()*1.1)+'s';
+   game.appendChild(s);
+   setTimeout(()=>s.remove(),3400);
  }
- flash('Ура! Картинка раскрашена! ✨');setTimeout(()=>next.classList.add('show'),650);
+ flash('Ура! Лисичка раскрашена! ✨');
+ setTimeout(()=>next.classList.add('show'),650);
 }
+
 next.onclick=()=>location.reload();
 </script>
 </body>
